@@ -5,3 +5,14 @@ dist/
 
 venv/
 .idea/
+
+# Environment and secrets
+.env
+.env.*
+
+# Python caches
+__pycache__/
+*.pyc
+
+# Vercel
+.vercel/
