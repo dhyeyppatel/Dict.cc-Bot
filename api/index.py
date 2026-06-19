@@ -381,7 +381,7 @@ def webhook():
 
 def send_help(message):
     text = (
-        r"📖 *Dict.cc Translation Bot*" + "\n\n"
+        r"📖 *Dict\.cc Translation Bot*" + "\n\n"
         r"Translate words and phrases between 12 languages instantly\!" + "\n\n"
         r"🚀 *How to use:*" + "\n"
         r"• *Plain Text:* Send any word or phrase \(e.g\. `beer` or `Bier`\)\. The bot translates it using your default pair\." + "\n"
@@ -408,8 +408,8 @@ def send_settings(message):
     prefs = USER_PREFS[chat_id]
     l1 = prefs["lang1"]
     l2 = prefs["lang2"]
-    l1_name = AVAILABLE_LANGUAGES.get(l1, "").capitalize()
-    l2_name = AVAILABLE_LANGUAGES.get(l2, "").capitalize()
+    l1_name = escape_markdown(AVAILABLE_LANGUAGES.get(l1, "").capitalize())
+    l2_name = escape_markdown(AVAILABLE_LANGUAGES.get(l2, "").capitalize())
     
     markup = get_settings_keyboard(chat_id)
     text = (
@@ -528,8 +528,8 @@ def handle_settings_callbacks(call):
         prefs = USER_PREFS[chat_id]
         l1 = prefs["lang1"]
         l2 = prefs["lang2"]
-        l1_name = AVAILABLE_LANGUAGES.get(l1, "").capitalize()
-        l2_name = AVAILABLE_LANGUAGES.get(l2, "").capitalize()
+        l1_name = escape_markdown(AVAILABLE_LANGUAGES.get(l1, "").capitalize())
+        l2_name = escape_markdown(AVAILABLE_LANGUAGES.get(l2, "").capitalize())
         text = (
             f"🛠 *Settings Panel*\n\n"
             f"Configure your default translation pair:\n"
