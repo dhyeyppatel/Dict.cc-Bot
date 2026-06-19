@@ -306,13 +306,13 @@ def home():
                 f"Bot is configured correctly and listening for webhooks. "
                 f"Webhook URL is configured to point to: <code>{webhook_url}</code>."
             )
-            show_setup_btn = True
         else:
+            detected_url = request.url_root.rstrip('/')
             message = (
-                "Bot is running, but the <code>WEBHOOK_URL</code> environment variable is not set. "
-                "You must configure it so that the bot can register itself with Telegram."
+                f"Bot is running! Since the <code>WEBHOOK_URL</code> environment variable is not set, "
+                f"it will be automatically detected as <code>{detected_url}</code> when registering."
             )
-            show_setup_btn = False
+        show_setup_btn = True
             
     return render_template_string(
         HTML_TEMPLATE,
@@ -329,14 +329,16 @@ def setup_webhook():
         
     webhook_url = os.environ.get('WEBHOOK_URL')
     if not webhook_url:
-        return "WEBHOOK_URL environment variable is missing. Cannot register webhook.", 400
+        # Auto-detect webhook URL from request if environment variable is not set
+        # request.url_root contains the schema and host, e.g. https://domain.vercel.app/
+        webhook_url = request.url_root.rstrip('/')
         
     url = f"{webhook_url}/{TOKEN}"
     success = bot.set_webhook(url=url)
     if success:
         return f"Webhook successfully registered with Telegram! Path: {url}", 200
     else:
-        return "Telegram API rejected webhook registration. Verify your Token and Webhook URL.", 500
+        return "Telegram API rejected webhook registration. Verify your Token.", 500
 
 @app.route('/' + TOKEN, methods=['POST'])
 def webhook():
