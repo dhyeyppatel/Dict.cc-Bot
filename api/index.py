@@ -342,13 +342,40 @@ def setup_webhook():
 
 @app.route('/' + TOKEN, methods=['POST'])
 def webhook():
-    if request.headers.get('content-type') == 'application/json':
-        json_string = request.get_data().decode('utf-8')
-        update = telebot.types.Update.de_json(json_string)
-        bot.process_new_updates([update])
-        return 'ok', 200
-    else:
-        abort(403)
+    print("[Webhook] Received POST request to webhook endpoint.")
+    
+    # Try parsing JSON first
+    json_dict = request.get_json(force=True, silent=True)
+    if json_dict:
+        print(f"[Webhook] Successfully parsed JSON: {json_dict}")
+        try:
+            update = telebot.types.Update.de_json(json_dict)
+            print(f"[Webhook] Processing update ID: {update.update_id}")
+            bot.process_new_updates([update])
+            print("[Webhook] Update processed successfully.")
+            return 'ok', 200
+        except Exception as e:
+            print(f"[Webhook] Error processing update: {e}")
+            import traceback
+            traceback.print_exc()
+            return 'internal error', 500
+            
+    # Fallback to raw data parsing
+    try:
+        raw_data = request.get_data()
+        print(f"[Webhook] Fallback: Raw data received (length {len(raw_data)})")
+        json_string = raw_data.decode('utf-8')
+        if json_string:
+            update = telebot.types.Update.de_json(json_string)
+            print(f"[Webhook] Processing update ID from raw: {update.update_id}")
+            bot.process_new_updates([update])
+            print("[Webhook] Raw update processed successfully.")
+            return 'ok', 200
+    except Exception as e:
+        print(f"[Webhook] Fallback parsing failed: {e}")
+        
+    print("[Webhook] Failed to parse request payload as JSON.")
+    abort(400)
 
 # --- Telegram Bot Handlers ---
 
